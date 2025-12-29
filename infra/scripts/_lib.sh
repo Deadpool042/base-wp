@@ -35,7 +35,7 @@ pick() {
   if has_fzf; then
     fzf --prompt "$prompt > " --height 40% --border --ansi
   else
-    head -n 1
+    echo ""
   fi
 }
 
@@ -58,4 +58,22 @@ container_logs() {
   if [[ -z "$svc" ]]; then svc="$(service_pick)"; fi
   echo "📜 Logs: $svc (Ctrl+C pour quitter)"
   dc logs -f --tail 200 "$svc"
+}
+
+load_env() {
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "❌ Fichier manquant: $ENV_FILE"
+    echo "➡️  cp infra/docker/env/.env.example infra/docker/env/.env"
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+}
+
+need_fzf() {
+  if ! has_fzf; then
+    echo "⚠️ fzf non détecté. Installe-le pour activer le menu interactif :"
+    echo "   brew install fzf"
+    exit 0
+  fi
 }

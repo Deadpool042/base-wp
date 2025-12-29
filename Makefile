@@ -1,27 +1,40 @@
 SHELL := /bin/bash
 
-# Docker compose wrappers
-ENV_FILE := infra/docker/env/.env
-COMPOSE_FILE := infra/docker/compose.yml
+# --------------------------------------------------
+# Base WP – Infra Makefile
+# --------------------------------------------------
 
-.PHONY: help menu up down restart ps logs wp reset install open mailpit db check
+.PHONY: help menu up down restart ps logs wp install reset open mailpit check
 
 help:
+	@echo "Base WP – Infra commands"
+	@echo ""
+	@echo "Usage: make <target>"
+	@echo ""
 	@echo "Targets:"
-	@echo "  make menu      - menu interactif (fzf)"
-	@echo "  make up        - démarrer l'infra"
-	@echo "  make down      - arrêter l'infra"
-	@echo "  make restart   - redémarrer l'infra"
-	@echo "  make ps        - status services"
-	@echo "  make logs      - logs interactifs"
-	@echo "  make wp        - WP-CLI interactif"
-	@echo "  make install   - installer WP (si non installé)"
-	@echo "  make reset     - reset complet (⚠️ supprime volumes)"
-	@echo "  make mailpit   - ouvrir Mailpit (url)"
-	@echo "  make open      - ouvrir WP (url)"
+	@echo "  help       Show this help"
+	@echo "  menu       Open interactive infra menu (fzf)"
+	@echo "  check      Run infra diagnostics"
+	@echo ""
+	@echo "  up         Start infrastructure"
+	@echo "  down       Stop infrastructure"
+	@echo "  restart    Restart infrastructure"
+	@echo "  ps         Show services status"
+	@echo "  logs       Show logs (interactive)"
+	@echo ""
+	@echo "  wp         WP-CLI interactive menu"
+	@echo "  install    Install WordPress (core install)"
+	@echo ""
+	@echo "  open       Open WordPress in browser"
+	@echo "  mailpit    Open Mailpit in browser"
+	@echo ""
+	@echo "  reset      Reset infra (⚠️ deletes volumes)"
 
 menu:
 	@infra/scripts/menu.sh
+
+check:
+	@infra/scripts/check.sh
 
 up:
 	@infra/scripts/up.sh
@@ -34,7 +47,7 @@ restart:
 	@infra/scripts/up.sh
 
 ps:
-	@docker compose --env-file $(ENV_FILE) -f $(COMPOSE_FILE) ps
+	@docker compose ps
 
 logs:
 	@infra/scripts/logs.sh
@@ -48,12 +61,8 @@ install:
 reset:
 	@infra/scripts/reset.sh
 
-mailpit:
-	@infra/scripts/menu.sh mailpit
-
 open:
 	@infra/scripts/menu.sh open
 
-check:
-	@infra/scripts/check.sh
-	
+mailpit:
+	@infra/scripts/menu.sh mailpit

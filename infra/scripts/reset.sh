@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source "$(dirname "$0")/_lib.sh"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$SCRIPT_DIR/_lib.sh"
 
 echo "⚠️ RESET COMPLET"
 echo "Cela va supprimer les volumes Docker (DB + WP)."
 
 if confirm "Confirmer reset"; then
+  echo "🧹 Suppression des containers et volumes…"
   dc down -v
-  echo "✅ Volumes supprimés."
+  echo "✅ Reset terminé (volumes supprimés)."
 else
-  echo "⏭️ Annulé."
+  echo "⏭️ Reset annulé."
 fi

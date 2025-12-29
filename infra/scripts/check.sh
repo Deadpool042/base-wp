@@ -5,8 +5,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/_lib.sh"
 
-
-
 # ---------- helpers ----------
 ok()   { echo "✅ $*"; }
 warn() { echo "⚠️  $*"; }
@@ -41,12 +39,6 @@ check_port_free() {
   fi
 }
 
-load_env_safe() {
-  require_file "$ENV_FILE"
-  # shellcheck disable=SC1090
-  source "$ENV_FILE"
-}
-
 # ---------- checks ----------
 echo "🔎 Check infra — base-wp"
 echo
@@ -77,7 +69,7 @@ fi
 if has_fzf; then
   ok "fzf: OK (menus interactifs activés)"
 else
-  warn "fzf non détecté (menus interactifs fallback). Reco: brew install fzf"
+  warn "⚠️ fzf non détecté. Installe-le pour activer les menus interactifs: brew install fzf"
 fi
 
 # Required files
@@ -86,7 +78,7 @@ if [[ -f "$ENV_FILE" ]]; then ok ".env présent"; else err ".env manquant: $ENV_
 
 # Env parsing + ports
 if [[ -f "$ENV_FILE" ]]; then
-  load_env_safe
+  load_env
 
   WP_PORT="${WP_PORT:-8000}"
   DB_PORT="${DB_PORT:-3306}"
@@ -134,19 +126,33 @@ make install (wp core install)
 EOF
 )
 
+choice=""
 if has_fzf; then
   choice="$(printf "%s\n" "$actions" | pick "Action")"
 else
-  choice="Quitter"
+  echo
+  echo "ℹ️  fzf non détecté : actions disponibles (non interactif)"
+  echo "$actions"
 fi
 
-case "${choice:-Quitter}" in
-  "make up (start infra)")       (cd "$ROOT_DIR" && make up) ;;
-  "make ps (status)")            (cd "$ROOT_DIR" && make ps) ;;
-  "make logs (pick service)")    (cd "$ROOT_DIR" && make logs) ;;
-  "make wp (wp-cli menu)")       (cd "$ROOT_DIR" && make wp) ;;
-  "make install (wp core install)") (cd "$ROOT_DIR" && make install) ;;
-  *) true ;;
-esac
+if [[ -n "${choice:-}" && "${choice:-}" != "Quitter" ]]; then
+  case "$choice" in
+    "make up (start infra)")
+      (cd "$ROOT_DIR" && make up)
+      ;;
+    "make ps (status)")
+      (cd "$ROOT_DIR" && make ps)
+      ;;
+    "make logs (pick service)")
+      (cd "$ROOT_DIR" && make logs)
+      ;;
+    "make wp (wp-cli menu)")
+      (cd "$ROOT_DIR" && make wp)
+      ;;
+    "make install (wp core install)")
+      (cd "$ROOT_DIR" && make install)
+      ;;
+  esac
+fi
 
 exit "$fail"
