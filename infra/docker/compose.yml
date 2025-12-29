@@ -1,0 +1,72 @@
+name: base-wp
+
+services:
+  db:
+    image: ${DB_IMAGE:-mysql:8.0}
+    container_name: ${PROJECT_NAME:-base-wp}_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-wordpress}
+      MYSQL_USER: ${DB_USER:-wp}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wp}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    container_name: ${PROJECT_NAME:-base-wp}_wp
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+    ports:
+      - "${WP_PORT:-8000}:80"
+    volumes:
+      - wp_data:/var/www/html
+      - ../../apps/wordpress/wp-content/plugins:/var/www/html/wp-content/plugins
+      - ../../apps/wordpress/wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ../../apps/wordpress/wp-content/themes:/var/www/html/wp-content/themes
+
+  wpcli:
+    image: wordpress:cli
+    container_name: ${PROJECT_NAME:-base-wp}_wpcli
+    depends_on:
+      wordpress:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp}
+    volumes:
+      - wp_data:/var/www/html
+      - ../../apps/wordpress/wp-content/plugins:/var/www/html/wp-content/plugins
+      - ../../apps/wordpress/wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ../../apps/wordpress/wp-content/themes:/var/www/html/wp-content/themes
+    entrypoint: ["wp"]
+    command: ["--info"]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: ${PROJECT_NAME:-base-wp}_mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_HTTP_PORT:-8025}:8025"
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+
+volumes:
+  db_data:
+  wp_data:
