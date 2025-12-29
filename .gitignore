@@ -1,0 +1,65 @@
+# =============================
+# OS / Editor
+# =============================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.vscode/
+.idea/
+
+# =============================
+# Environment variables
+# =============================
+.env
+.env.*
+!*.example
+
+infra/docker/env/.env
+infra/docker/env/.env.*
+!infra/docker/env/*.example
+
+# =============================
+# WordPress
+# =============================
+apps/wordpress/wp-content/uploads/
+apps/wordpress/wp-content/cache/
+apps/wordpress/wp-content/upgrade/
+apps/wordpress/wp-content/backups/
+apps/wordpress/wp-content/wflogs/
+apps/wordpress/wp-content/aiowps_backups/
+
+# Ignore plugins & themes by default
+apps/wordpress/wp-content/plugins/*
+apps/wordpress/wp-content/themes/*
+
+# Allow .gitkeep to keep folders
+!apps/wordpress/wp-content/plugins/.gitkeep
+!apps/wordpress/wp-content/themes/.gitkeep
+
+# =============================
+# Docker / Infra
+# =============================
+**/node_modules/
+**/vendor/
+**/.docker/
+**/*.log
+
+# Docker local volumes
+infra/docker/data/
+infra/docker/volumes/
+
+# =============================
+# Build / temp
+# =============================
+dist/
+build/
+tmp/
+.cache/
+
+# =============================
+# Logs
+# =============================
+logs/
+*.log
