@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "*.md": "markdown"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false,
+    "editor.formatOnSave": true,
+    "editor.rulers": [80],
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  },
+  "markdown.preview.breaks": true,
+  "markdown.previewFrontMatter": "show"
+}
