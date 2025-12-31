@@ -31,6 +31,39 @@ de snippets opportunistes.
 
 ---
 
+## Documentation (obligatoire)
+
+- Toute la documentation ajoutée ou modifiée doit être rédigée en **français**.
+- Ne jamais utiliser le style JSDoc `/** ... */` dans les scripts **bash** (ce n’est pas un commentaire bash).
+- Pour bash, utiliser uniquement :
+  - des commentaires `#` au-dessus des fonctions, **ou**
+  - un bloc doc bash via `: <<'DOC' ... DOC`
+- Pour TypeScript/JS : JSDoc OK mais en **français**.
+- Pour PHP : PHPDoc OK mais en **français**.
+- Les prompts personnalisés définis dans `.github/prompts/` doivent être strictement respectés.
+- La documentation Bash doit toujours être en français.
+
+### Format de doc attendu (bash)
+
+- 1 ligne résumé
+- `Arguments:` (avec `$1`, `$2`, etc.)
+- `Retour:` si pertinent
+- `Exemples:` si la fonction est utilisée côté CLI
+
+Exemple bash à respecter :
+
+#### Synchronise env + hosts + certs après un changement de meta
+
+#### Arguments
+
+#### $1: proj_dir (chemin absolu du projet)
+
+#### $2: project_ref (ref relative sous projects/)
+
+pm_sync_after_change() {
+...
+}
+
 ## 🧱 Découpage logique des plugins
 
 Copilot doit toujours **se demander où le code doit vivre**.

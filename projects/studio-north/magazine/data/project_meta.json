@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "meta": {
+    "id": "857b0d94-c44b-4fee-ad60-5ae1b0dfba0d",
+    "created_at": "2025-12-31T08:57:16+01:00",
+    "updated_at": "2025-12-31T08:57:16+01:00"
+  },
+  "identity": {
+    "client": "studio-north",
+    "site_name": "magazine"
+  },
+  "params": {
+    "slug": "studio-north/magazine"
+  }
+}

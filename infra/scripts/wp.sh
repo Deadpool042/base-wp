@@ -5,119 +5,54 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "$SCRIPT_DIR/_lib.sh"
 
-WPCLI_SVC="wpcli"
+WPCLI_SVC="${WPCLI_SVC:-wpcli}"
+wp() { dc run --rm "$WPCLI_SVC" "$@"; }
 
-wp() {
-  # ex: wp core is-installed
-  dc run --rm "$WPCLI_SVC" "$@"
-}
-
-wp_install_if_needed() {
+doctor() {
+  profile_info
+  echo
   load_env
-
-  if wp core is-installed --quiet >/dev/null 2>&1; then
-    echo "✅ WordPress déjà installé."
-    return 0
-  fi
-
-  echo "🧱 Installation WordPress…"
-  wp core install \
-    --url="${WP_SITE_URL:-http://localhost:8000}" \
-    --title="${WP_TITLE:-Base WP}" \
-    --admin_user="${WP_ADMIN_USER:-admin}" \
-    --admin_password="${WP_ADMIN_PASSWORD:-admin}" \
-    --admin_email="${WP_ADMIN_EMAIL:-admin@example.local}" \
-    --skip-email
-
-  echo "✅ Installation terminée."
+  info "SITE_DOMAIN=${SITE_DOMAIN:-}"
+  info "WP_SITE_URL=${WP_SITE_URL:-}"
+  info "TRAEFIK_TLS_RESOLVER=${TRAEFIK_TLS_RESOLVER:-}"
+  echo
+  dc version || true
+  echo
+  dc ps || true
 }
 
-# Mode direct: `infra/scripts/wp.sh install`
-if [[ "${1:-}" == "install" ]]; then
-  wp_install_if_needed
-  exit 0
-fi
+build_image() { dc build wordpress; }
+rebuild_image() { dc build --no-cache wordpress && dc up -d --force-recreate wordpress; }
 
-# Menu actions
-actions=(
-  "Install WordPress (core install)"
-  "WP-CLI: status (wp --info)"
-  "WP-CLI: list plugins"
-  "WP-CLI: list themes"
-  "WP-CLI: list users"
-  "WP-CLI: admin url"
-  "WP-CLI: search-replace (dry-run)"
-  "WP-CLI: open shell (interactive)"
-)
+# direct modes
+case "${1:-}" in
+  install) "$SCRIPT_DIR/wp-install.sh"; exit 0 ;;   # <- délègue
+  doctor) doctor; exit 0 ;;
+  build-image) build_image; exit 0 ;;
+  rebuild-image) rebuild_image; exit 0 ;;
+esac
 
-choose_action() {
-  if has_fzf; then
-    printf "%s\n" "${actions[@]}" | pick "WP"
-    return 0
-  fi
-
-  echo "⚠️ fzf non détecté. Menu fallback (select). Reco: brew install fzf"
-  select opt in "${actions[@]}" "Quit"; do
-    if [[ "${opt:-}" == "Quit" || -z "${opt:-}" ]]; then
-      echo "⏭️ Annulé."
-      echo
-      return 0
-    fi
-    echo "$opt"
-    return 0
-  done
-}
-
-choice="$(choose_action)"
+# menu
+need_fzf
+choice="$(printf "%s\n" \
+  "Install WordPress (project)" \
+  "Doctor (diag)" \
+  "Build WP image" \
+  "Rebuild WP image (no-cache)" \
+  "List plugins" \
+  "List themes" \
+  "List users" \
+  "Admin URL" \
+| pick "WP")"
 
 case "$choice" in
-  "Install WordPress (core install)")
-    wp_install_if_needed
-    ;;
-
-  "WP-CLI: status (wp --info)")
-    wp --info
-    ;;
-
-  "WP-CLI: list plugins")
-    wp plugin list
-    ;;
-
-  "WP-CLI: list themes")
-    wp theme list
-    ;;
-
-  "WP-CLI: list users")
-    wp user list
-    ;;
-
-  "WP-CLI: admin url")
-    wp option get siteurl | sed 's|$|/wp-admin/|'
-    ;;
-
-  "WP-CLI: search-replace (dry-run)")
-    echo "⚠️ Dry-run. Exemple: http://old -> http://new"
-    read -r -p "Old URL: " old
-    read -r -p "New URL: " new
-
-    if [[ -z "${old:-}" || -z "${new:-}" ]]; then
-      echo "⏭️ Annulé (old/new manquant)."
-      exit 0
-    fi
-
-    wp search-replace "$old" "$new" --all-tables --dry-run
-    ;;
-
-  "WP-CLI: open shell (interactive)")
-    echo "💡 Shell WP-CLI. Tape 'exit' pour quitter."
-    dc run --rm -it "$WPCLI_SVC" /bin/sh
-    ;;
-
-  ""|"Quit")
-    echo "⏭️ Annulé."
-    ;;
-
-  *)
-    echo "⏭️ Annulé."
-    ;;
+  "Install WordPress (project)") "$SCRIPT_DIR/wp-install.sh" ;;
+  "Doctor (diag)") doctor ;;
+  "Build WP image") build_image ;;
+  "Rebuild WP image (no-cache)") rebuild_image ;;
+  "List plugins") wp plugin list ;;
+  "List themes") wp theme list ;;
+  "List users") wp user list ;;
+  "Admin URL") wp option get siteurl | sed 's|$|/wp-admin/|' ;;
+  *) echo "⏭️ Annulé." ;;
 esac

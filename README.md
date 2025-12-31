@@ -1,4 +1,4 @@
-# base-wp
+# site-factory
 
 Socle technique WordPress — **gouvernance de stack**, règles de dépendances et cadre décisionnel  
 pour des projets WordPress maintenables, scalables et auditables.
@@ -7,7 +7,7 @@ pour des projets WordPress maintenables, scalables et auditables.
 
 ## 🎯 Objectif du projet
 
-`base-wp` définit une **base commune agence** destinée à :
+`site-factory` définit une **plateforme interne d’orchestration et de gouvernance** destinée à :
 
 - garantir la cohérence technique entre projets
 - éviter le lock-in (plugins, freemium, solutions opaques)
@@ -15,7 +15,7 @@ pour des projets WordPress maintenables, scalables et auditables.
 - faciliter la maintenance long terme
 - fournir un cadre clair aux développeurs et partenaires
 
-Ce dépôt **ne contient pas de code applicatif**, mais un **cadre normatif**.
+Ce dépôt combine un **cadre normatif** et un **outil CLI interne** (`.bin/site-factory`) servant de point d’entrée unique.
 
 ---
 
@@ -30,6 +30,7 @@ Ce dépôt **ne contient pas de code applicatif**, mais un **cadre normatif**.
   - Plugin Agence
   - Plugin Client
   - Plugin Webmaster
+- CLI interne `site-factory` (gestion des projets, point d’entrée des services)
 
 ---
 
@@ -83,6 +84,8 @@ Tout ce qui sort de ce cadre entraîne :
 ## 📌 Statut
 
 - usage interne / gouvernance
+- CLI interne comme point d’entrée unique (`.bin/site-factory`)
+- UI interne en cours de structuration
 - pas de distribution de template
 - pas de promesse open-source
 - évolutif selon les retours terrain

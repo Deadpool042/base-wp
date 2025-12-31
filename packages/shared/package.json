@@ -1,0 +1,15 @@
+{
+  "name": "@sf/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./ndjson": "./src/ndjson/index.ts",
+    "./projects": "./src/projects/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.3.2"
+  }
+}

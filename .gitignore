@@ -6,6 +6,7 @@
 ._*
 .Spotlight-V100
 .Trashes
+
 .vscode/
 .idea/
 
@@ -16,9 +17,11 @@
 .env.*
 !*.example
 
-infra/docker/env/.env
-infra/docker/env/.env.*
-!infra/docker/env/*.example
+# Profiles (prod-like) — keep examples, ignore real secrets
+infra/profiles/**/env/.env
+infra/profiles/**/env/.env.*
+!infra/profiles/**/env/.env.example
+!infra/profiles/**/env/.env.*.example
 
 # =============================
 # WordPress
@@ -34,29 +37,36 @@ apps/wordpress/wp-content/aiowps_backups/
 apps/wordpress/wp-content/plugins/*
 apps/wordpress/wp-content/themes/*
 
-# Allow .gitkeep to keep folders
+# Allow placeholders
 !apps/wordpress/wp-content/plugins/.gitkeep
 !apps/wordpress/wp-content/themes/.gitkeep
 
 # =============================
-# Docker / Infra
+# Node / PHP dependencies
 # =============================
 **/node_modules/
 **/vendor/
-**/.docker/
-**/*.log
+.pnpm-store/
 
-# Docker local volumes
+# =============================
+# Next.js / Build
+# =============================
+.next/
+out/
+dist/
+build/
+.cache/
+tmp/
+
+# =============================
+# Docker / Infra
+# =============================
+**/.docker/
 infra/docker/data/
 infra/docker/volumes/
 
-# =============================
-# Build / temp
-# =============================
-dist/
-build/
-tmp/
-.cache/
+# Traefik (ACME stores private keys)
+infra/profiles/**/traefik/acme.json
 
 # =============================
 # Logs

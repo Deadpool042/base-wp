@@ -12,13 +12,16 @@ Ce projet suit une logique inspirée de
 ### Added
 
 - Socle technique WordPress (document de référence)
-- Politique de dépendances
+- Politique de gestion des dépendances
 - Liste blanche des plugins autorisés
 - Stack de refus et exclusions techniques
 - Flux décisionnel (plugin validé vs custom & placement)
 - README de gouvernance projet
+- UI primitive de gestion des projets (liste, sélection, détails)
 
 ### Notes
 
-- Version initiale du cadre de gouvernance
-- Aucune distribution de code applicatif
+- Version initiale du **cadre de gouvernance**
+- Mise en place d’une **UI fonctionnelle mais non finalisée** pour les projets
+- Aucun code applicatif métier livré à ce stade
+- Cette version sert de base pour les développements futurs

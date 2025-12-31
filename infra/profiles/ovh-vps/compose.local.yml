@@ -1,0 +1,7 @@
+services:
+  traefik:
+    volumes:
+      - ./traefik/dynamic.yml:/dynamic.yml:ro
+      - ./traefik/certs:/certs:ro
+    command:
+      - "--providers.file.filename=/dynamic.yml"

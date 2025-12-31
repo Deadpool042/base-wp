@@ -25,7 +25,6 @@ port_in_use() {
   if command -v lsof >/dev/null 2>&1; then
     lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1
   else
-    # fallback best-effort (macOS usually has lsof)
     return 2
   fi
 }
@@ -39,8 +38,21 @@ check_port_free() {
   fi
 }
 
+check_file() {
+  local f="$1" label="${2:-file}"
+  if [[ -f "$f" ]]; then
+    ok "$label présent: $f"
+  else
+    err "$label manquant: $f"
+    return 1
+  fi
+}
+
 # ---------- checks ----------
 echo "🔎 Check infra — base-wp"
+echo
+
+profile_info
 echo
 
 fail=0
@@ -49,7 +61,10 @@ fail=0
 need_cmd docker || fail=1
 need_cmd bash || true
 need_cmd lsof || warn "lsof absent (check ports limité)"
+need_cmd jq   || warn "jq absent (project manager/metadata limités)"
+need_cmd mkcert || warn "mkcert absent (TLS local *.local nécessitera mkcert)"
 
+# Docker daemon
 if docker info >/dev/null 2>&1; then
   ok "Docker daemon: OK"
 else
@@ -57,7 +72,7 @@ else
   fail=1
 fi
 
-# Docker Compose v2 (docker compose)
+# docker compose
 if docker compose version >/dev/null 2>&1; then
   ok "docker compose: OK"
 else
@@ -65,38 +80,55 @@ else
   fail=1
 fi
 
-# fzf (optional but recommended)
+# fzf
 if has_fzf; then
   ok "fzf: OK (menus interactifs activés)"
 else
-  warn "⚠️ fzf non détecté. Installe-le pour activer les menus interactifs: brew install fzf"
+  warn "fzf non détecté. Installe-le: brew install fzf"
 fi
 
-# Required files
-if [[ -f "$COMPOSE_FILE" ]]; then ok "compose.yml présent"; else err "compose.yml manquant: $COMPOSE_FILE"; fail=1; fi
-if [[ -f "$ENV_FILE" ]]; then ok ".env présent"; else err ".env manquant: $ENV_FILE (cp infra/docker/env/.env.example infra/docker/env/.env)"; fail=1; fi
+# Compose files
+echo
+echo "📄 Compose files"
+for f in "${COMPOSE_FILES[@]}"; do
+  check_file "$f" "compose" || fail=1
+done
 
-# Env parsing + ports
+# Env file
+echo
+echo "🔐 Env file"
+if check_file "$ENV_FILE" "env"; then
+  :
+else
+  print_env_hint || true
+  fail=1
+fi
+
+# Ports
 if [[ -f "$ENV_FILE" ]]; then
   load_env
 
-  WP_PORT="${WP_PORT:-8000}"
-  DB_PORT="${DB_PORT:-3306}"
-  MAILPIT_HTTP_PORT="${MAILPIT_HTTP_PORT:-8025}"
-  MAILPIT_SMTP_PORT="${MAILPIT_SMTP_PORT:-1025}"
-
   echo
-  echo "🔌 Ports"
-  check_port_free "$WP_PORT"
-  check_port_free "$DB_PORT"
-  check_port_free "$MAILPIT_HTTP_PORT"
-  check_port_free "$MAILPIT_SMTP_PORT"
+  echo "🔌 Ports (exposés)"
+  # Traefik publié en 80/443 dans ton profil ovh-vps
+  check_port_free 80
+  check_port_free 443
+
+  # Mailpit si dev (ou si vars définies)
+  MAILPIT_HTTP_PORT="${MAILPIT_HTTP_PORT:-8025}"
+  MAILPIT_SMTP_PORT="${MAILPIT_SMTP_PORT:-1026}"
+  if [[ "${ENV_NAME:-}" == "dev" || -n "${MAILPIT_HTTP_PORT:-}" || -n "${MAILPIT_SMTP_PORT:-}" ]]; then
+    echo
+    echo "✉️  Mailpit (dev-only)"
+    check_port_free "$MAILPIT_HTTP_PORT"
+    check_port_free "$MAILPIT_SMTP_PORT"
+  fi
 fi
 
-# Services state
+# Services state (ne jamais faire échouer le check)
 echo
-echo "🐳 Services (docker compose ps)"
-if docker info >/dev/null 2>&1 && [[ -f "$COMPOSE_FILE" && -f "$ENV_FILE" ]]; then
+echo "🐳 Services (profil: $PROFILE)"
+if docker info >/dev/null 2>&1; then
   dc ps || true
 
   services="$(dc ps --services 2>/dev/null || true)"
@@ -107,7 +139,7 @@ if docker info >/dev/null 2>&1 && [[ -f "$COMPOSE_FILE" && -f "$ENV_FILE" ]]; th
   fi
 fi
 
-# Summary + actions
+# Summary
 echo
 if [[ "$fail" -eq 0 ]]; then
   ok "Check terminé: tout semble OK."
@@ -115,6 +147,7 @@ else
   err "Check terminé: erreurs détectées."
 fi
 
+# Actions rapides
 actions=$(
   cat <<'EOF'
 Quitter
@@ -131,27 +164,17 @@ if has_fzf; then
   choice="$(printf "%s\n" "$actions" | pick "Action")"
 else
   echo
-  echo "ℹ️  fzf non détecté : actions disponibles (non interactif)"
+  echo "ℹ️  fzf non détecté : actions disponibles"
   echo "$actions"
 fi
 
 if [[ -n "${choice:-}" && "${choice:-}" != "Quitter" ]]; then
   case "$choice" in
-    "make up (start infra)")
-      (cd "$ROOT_DIR" && make up)
-      ;;
-    "make ps (status)")
-      (cd "$ROOT_DIR" && make ps)
-      ;;
-    "make logs (pick service)")
-      (cd "$ROOT_DIR" && make logs)
-      ;;
-    "make wp (wp-cli menu)")
-      (cd "$ROOT_DIR" && make wp)
-      ;;
-    "make install (wp core install)")
-      (cd "$ROOT_DIR" && make install)
-      ;;
+    "make up (start infra)")        (cd "$ROOT_DIR" && make up) ;;
+    "make ps (status)")            (cd "$ROOT_DIR" && make ps) ;;
+    "make logs (pick service)")    (cd "$ROOT_DIR" && make logs) ;;
+    "make wp (wp-cli menu)")       (cd "$ROOT_DIR" && make wp) ;;
+    "make install (wp core install)") (cd "$ROOT_DIR" && make install) ;;
   esac
 fi
 

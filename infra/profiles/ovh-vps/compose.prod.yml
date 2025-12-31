@@ -1,0 +1,4 @@
+services:
+  nginx:
+    labels:
+      - "traefik.http.routers.wp.tls.certresolver=letsencrypt"
