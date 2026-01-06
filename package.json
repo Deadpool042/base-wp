@@ -3,6 +3,11 @@
   "private": true,
   "packageManager": "pnpm@10.27.0",
   "scripts": {
+    "dev": "concurrently -n shared,ui -c auto \"pnpm dev:shared\" \"pnpm dev:ui\"",
+    "dev:shared": "pnpm --filter @sf/shared build:watch",
     "dev:ui": "pnpm --filter site-factory-ui dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

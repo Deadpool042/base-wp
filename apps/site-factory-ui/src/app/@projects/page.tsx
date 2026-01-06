@@ -16,7 +16,7 @@ export default async function ProjectsSlot() {
   return (
     <Card className="rounded-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Projects</CardTitle>
+        <CardTitle>Projets</CardTitle>
         <Badge variant="secondary">{projects.length}</Badge>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -36,7 +36,7 @@ export default async function ProjectsSlot() {
           <Link
             href="/projects"
             className="text-sm underline">
-            Open projects
+            Ouvrir les projets
           </Link>
         </div>
       </CardContent>

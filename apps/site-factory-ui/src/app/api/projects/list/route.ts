@@ -5,7 +5,7 @@ import { spawn } from "child_process";
 import readline from "readline";
 import { SITE_FACTORY_BIN } from "@/lib/siteFactoryBin";
 import { asEvent, parseNDJSONLine } from "@sf/shared/ndjson";
-import type { ProjectItem } from "@sf/shared/projects";
+import { ProjectItemSchema, type ProjectItem } from "@sf/shared/projects";
 
 export async function GET() {
   const child = spawn(SITE_FACTORY_BIN, ["projects", "list"], {
@@ -25,13 +25,19 @@ export async function GET() {
 
     const base = parseNDJSONLine(s);
     if (!base) {
-      err = `Invalid NDJSON line: ${s}`;
+      err = `Ligne NDJSON invalide : ${s}`;
       return;
     }
 
     const proj = asEvent(base, "project", ["id", "slug", "client", "site"] as const);
     if (proj) {
-      projects.push({ id: proj.id, slug: proj.slug, client: proj.client, site: proj.site });
+      const parsed = ProjectItemSchema.safeParse.call(ProjectItemSchema, {
+        id: proj.id,
+        slug: proj.slug,
+        client: proj.client,
+        site: proj.site,
+      });
+      if (parsed.success) projects.push(parsed.data);
       return;
     }
 
@@ -48,7 +54,7 @@ export async function GET() {
 
   if (code !== 0 || err) {
     return NextResponse.json(
-      { ok: false, error: err ?? `CLI exited with code ${code}`, stderr },
+      { ok: false, error: err ?? `La CLI s'est arrêtée avec le code ${code}`, stderr },
       { status: 500 }
     );
   }

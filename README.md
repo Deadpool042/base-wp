@@ -81,6 +81,22 @@ Tout ce qui sort de ce cadre entraîne :
 
 ---
 
+## 🧰 CLI (site-factory)
+
+Le dépôt inclut une CLI interne `site-factory` utilisée par l’UI et par les scripts.
+
+Note (fixtures de test) :
+`lib/site-factory/projects/fixtures` est un lien symbolique vers `lib/site-factory/projects/_fixtures`.
+
+Exemples (workflow minimal) :
+
+- `site-factory projects configure <client/site> --deployment-target mutualized:o2switch`
+- `site-factory projects docker generate <client/site> --profile local --force`
+- `site-factory projects deploy <client/site> --env staging --ssh-host <host> --ssh-user <user> --ssh-path <remote_path> --dry-run`
+- `site-factory projects deploy <client/site> --env prod --ssh-host <host> --ssh-user <user> --ssh-path <remote_path> --dry-run`
+
+---
+
 ## 📌 Statut
 
 - usage interne / gouvernance

@@ -1,68 +1,31 @@
 {
-  "files.associations": {
-    "*.md": "markdown"
-  },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "files.autoSave": "afterDelay",
-  "files.autoSaveDelay": 1000,
-  "[markdown]": {
-    "editor.wordWrap": "on",
-    "editor.quickSuggestions": {
-      "comments": "off",
-      "strings": "off",
-      "other": "off"
-    },
-    "editor.formatOnSave": true,
-    "editor.rulers": [80],
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[css]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "editor.tabSize": 2
-  },
+  "prettier.printWidth": 120,
+
+  "shellcheck.enable": true,
+  "shellcheck.run": "onSave",
+  "shellcheck.customArgs": ["--external-sources", "--source-path=lib"],
+
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.codeActionsOnSave": {},
     "editor.formatOnSave": true,
     "editor.tabSize": 2
   },
-  "prettier.semi": true,
-  "prettier.singleQuote": false,
-  "prettier.trailingComma": "es5",
-  "prettier.printWidth": 100,
-  "prettier.bracketSpacing": true,
-  "markdown.preview.breaks": true,
-  "markdown.previewFrontMatter": "show"
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+
+  "shellformat.flag": "-i 2 -ci -sr",
+  "shellformat.useEditorConfig": true,
+
+  "files.associations": {
+    "*.sh": "shellscript",
+    "*.bash": "shellscript",
+    "*.zsh": "shellscript"
+  },
+
+  "bashIde.enableSourceErrorDiagnostics": false,
+  "bashIde.globPattern": "**/*@(.sh|.bash|.zsh)",
+  "bashIde.shellcheckPath": "shellcheck"
 }

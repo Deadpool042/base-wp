@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const slug = searchParams.get("slug");
 
   if (!slug) {
-    return NextResponse.json({ ok: false, error: "Missing slug" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Slug manquant" }, { status: 400 });
   }
 
   const child = spawn(SITE_FACTORY_BIN, ["projects", "show", slug], {
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 
     const base = parseNDJSONLine(s);
     if (!base) {
-      err = `Invalid NDJSON line: ${s}`;
+      err = `Ligne NDJSON invalide : ${s}`;
       return;
     }
 
@@ -56,14 +56,14 @@ export async function GET(req: Request) {
 
   if (code !== 0 || err) {
     return NextResponse.json(
-      { ok: false, error: err ?? `CLI exited with code ${code}`, stderr },
+      { ok: false, error: err ?? `La CLI s'est arrêtée avec le code ${code}`, stderr },
       { status: 500 }
     );
   }
 
   if (!metaFile || !id) {
     return NextResponse.json(
-      { ok: false, error: "Missing meta from CLI", stderr },
+      { ok: false, error: "Métadonnées manquantes depuis la CLI", stderr },
       { status: 500 }
     );
   }

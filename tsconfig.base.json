@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+
     "strict": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+
     "resolveJsonModule": true,
+    "esModuleInterop": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+
+    "forceConsistentCasingInFileNames": true
   }
 }

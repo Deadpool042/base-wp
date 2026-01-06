@@ -4,10 +4,30 @@
   "version": "0.0.0",
   "type": "module",
   "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./ndjson": "./src/ndjson/index.ts",
-    "./projects": "./src/projects/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ndjson": {
+      "types": "./dist/ndjson/index.d.ts",
+      "default": "./dist/ndjson/index.js"
+    },
+    "./projects": {
+      "types": "./dist/projects/index.d.ts",
+      "default": "./dist/projects/index.js"
+    },
+    "./clients": {
+      "types": "./dist/clients/index.d.ts",
+      "default": "./dist/clients/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.build.json",
+    "build:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput"
   },
   "dependencies": {
     "zod": "^4.3.2"

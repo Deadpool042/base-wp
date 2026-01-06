@@ -1,146 +1,113 @@
 SHELL := /bin/bash
 
 # --------------------------------------------------
-# Base WP – Infra Makefile
+# Site Factory – Infra / Tooling Makefile
 # --------------------------------------------------
 
-.PHONY: help menu up down restart ps logs wp install reset open mailpit check \
-        build-wp rebuild-wp doctor clean \
-        host-add host-rm certs certs-clean \
-        project project-list project-edit \
-				docsh docenv docmeta auditshell
+# ✅ Uniquement les scripts versionnés sous lib/
+SHELL_GLOBS := ':(glob)lib/**/*.sh' ':(glob)lib/**/*.bash' ':(glob)lib/**/*.zsh'
 
-help:
-	@echo "Base WP – Infra commands"
-	@echo ""
-	@echo "Usage: make <target>"
-	@echo ""
-	@echo "Targets:"
-	@echo "  help         Show this help"
-	@echo "  menu         Open interactive infra menu (fzf)"
-	@echo "  check        Run infra diagnostics"
-	@echo ""
-	@echo "Project management:"
-	@echo "  project       Open project menu (fzf)"
-	@echo "  project-list  List available projects"
-	@echo "  project-edit  Edit a project (fzf)"
-	@echo ""
-	@echo "Infra:"
-	@echo "  up           Start infrastructure"
-	@echo "  down         Stop infrastructure"
-	@echo "  restart      Restart infrastructure"
-	@echo "  ps           Show services status"
-	@echo "  logs         Show logs (interactive)"
-	@echo ""
-	@echo "WordPress:"
-	@echo "  wp           WP-CLI interactive menu"
-	@echo "  install      Install WordPress (core install)"
-	@echo ""
-	@echo "Images/diagnostic:"
-	@echo "  build-wp     Build WordPress image"
-	@echo "  rebuild-wp   Rebuild WordPress image (no-cache)"
-	@echo "  doctor       Print versions/diagnostics"
-	@echo "  clean        Clean project containers/volumes"
-	@echo ""
-	@echo "Local TLS / hosts:"
-	@echo "  host-add     Add project domains to /etc/hosts"
-	@echo "  host-rm      Remove project domains from /etc/hosts"
-	@echo "  certs        Ensure local SSL certificates"
-	@echo "  certs-clean  Remove local SSL certificates"
-	@echo ""
-	@echo "Convenience:"
-	@echo "  open         Open WordPress in browser"
-	@echo "  mailpit      Open Mailpit in browser"
-	@echo ""
-	@echo "Code documentation with Copilot Chat:"
-	@echo "  docsh        Documenter du code Bash avec Copilot Chat"
-	@echo "  docenv       Documenter un fichier .env avec Copilot Chat"
-	@echo "  docmeta      Documenter un fichier meta.json avec Copilot Chat"
-	@echo "  auditshell   Auditer un script Bash avec Copilot Chat"
+# Helper: liste NUL-separated (robuste espaces)
+SHELL_FILES_Z := git ls-files -z -- $(SHELL_GLOBS)
 
-	
-	@echo ""
-	@echo "Danger:"
-	@echo "  reset        Reset infra (⚠️ deletes volumes)"
+# Helper: liste “human” (debug/menu éventuel)
+SHELL_FILES := $(shell git ls-files -- $(SHELL_GLOBS))
+
+.PHONY: help menu \
+	doc-sh doc-env doc-meta audit-shell \
+	shell-fmt shell-check shell-check-style shell-watch shell-check-watch shell-check-style-watch \
+	dev-shared dev-ui dev-all \
+	test-deploy-fixture
+
+help: menu
 
 menu:
-	@bash infra/scripts/menu.sh
+	@echo "📚 Site Factory – Commandes disponibles"
+	@echo "----------------------------------------"
+	@echo ""
+	@echo "📖 Documentation (Copilot Chat)"
+	@echo "----------------------------------------"
+	@echo " make doc-sh                 👉 Doc pour scripts Bash"
+	@echo " make doc-env                👉 Doc pour fichiers .env"
+	@echo " make doc-meta               👉 Doc pour meta.json"
+	@echo ""
+	@echo "🔍 Audit / Qualité Shell (lib/ uniquement)"
+	@echo "----------------------------------------"
+	@echo " make shell-fmt              👉 shfmt (one-shot) [lib/]"
+	@echo " make shell-check            👉 shellcheck (warning) [lib/]"
+	@echo " make shell-check-style      👉 shellcheck (style) [lib/]"
+	@echo " make shell-watch            👉 shfmt (watch) [lib/]"
+	@echo " make shell-check-watch      👉 shellcheck warning (watch) [lib/]"
+	@echo " make shell-check-style-watch👉 shellcheck style (watch) [lib/]"
+	@echo ""
+	@echo "🚀 Dev"
+	@echo "----------------------------------------"
+	@echo " make dev-shared             👉 Shared build:watch"
+	@echo " make dev-ui                 👉 UI dev"
+	@echo " make dev-all                👉 Shared + UI (parallèle)"
+	@echo ""
+	@echo " make help                   👉 Afficher ce menu"
+	@echo "----------------------------------------"
 
-check:
-	@bash infra/scripts/check.sh
+doc-sh:
+	@echo "👉 Sélectionne du code Bash puis Copilot Chat : /docsh"
 
-up:
-	@bash infra/scripts/up.sh
+doc-env:
+	@echo "👉 Sélectionne un fichier .env puis Copilot Chat : /docenv"
 
-down:
-	@bash infra/scripts/down.sh
+doc-meta:
+	@echo "👉 Sélectionne meta.json puis Copilot Chat : /docmeta"
 
-restart:
-	@bash infra/scripts/down.sh
-	@bash infra/scripts/up.sh
+audit-shell:
+	@echo "👉 Sélectionne un script Bash puis Copilot Chat : /auditshell"
 
-ps:
-	@bash infra/scripts/ps.sh
+shell-fmt:
+	@command -v shfmt >/dev/null 2>&1 || { echo "❌ shfmt manquant (brew install shfmt)"; exit 1; }
+	@$(SHELL_FILES_Z) | xargs -0 -r shfmt -w -i 2 -ci -sr
 
-logs:
-	@bash infra/scripts/logs.sh
+shell-check:
+	@command -v shellcheck >/dev/null 2>&1 || { echo "❌ shellcheck manquant (brew install shellcheck)"; exit 1; }
+	@$(SHELL_FILES_Z) | xargs -0 -r shellcheck -x -S warning -s bash
 
-wp:
-	@bash infra/scripts/wp.sh
+shell-check-style:
+	@command -v shellcheck >/dev/null 2>&1 || { echo "❌ shellcheck manquant (brew install shellcheck)"; exit 1; }
+	@$(SHELL_FILES_Z) | xargs -0 -r shellcheck -x -S style -s bash
 
-install:
-	@bash infra/scripts/wp-install.sh
+shell-watch:
+	@command -v watchexec >/dev/null 2>&1 || { echo "❌ watchexec manquant (brew install watchexec)"; exit 1; }
+	@watchexec -e sh,bash,zsh \
+		--watch lib \
+		--ignore .git \
+		--ignore .vscode \
+		-- lib/tools/shfmt-watch.sh
 
-reset:
-	@bash infra/scripts/reset.sh
+shell-check-watch:
+	@command -v watchexec >/dev/null 2>&1 || { echo "❌ watchexec manquant (brew install watchexec)"; exit 1; }
+	@watchexec -e sh,bash,zsh \
+		--watch lib \
+		--ignore .git \
+		--ignore .vscode \
+		-- env SHELLCHECK_SEVERITY=warning lib/tools/shellcheck-watch.sh
 
-open:
-	@bash infra/scripts/menu.sh open
+shell-check-style-watch:
+	@command -v watchexec >/dev/null 2>&1 || { echo "❌ watchexec manquant (brew install watchexec)"; exit 1; }
+	@watchexec -e sh,bash,zsh \
+		--watch lib \
+		--ignore .git \
+		--ignore .vscode \
+		-- env SHELLCHECK_SEVERITY=style lib/tools/shellcheck-watch.sh
 
-mailpit:
-	@bash infra/scripts/menu.sh mailpit
+dev-shared:
+	@pnpm --filter @sf/shared build:watch
 
-build-wp:
-	@BASEWP_NO_PROMPT=1 bash infra/scripts/wp.sh build-image
+dev-ui:
+	@pnpm --filter site-factory-ui dev
 
-rebuild-wp:
-	@BASEWP_NO_PROMPT=1 bash infra/scripts/wp.sh rebuild-image
+dev-all:
+	@echo "🚀 Démarrage dev shared + ui"
+	@pnpm --filter @sf/shared build:watch & \
+	pnpm --filter site-factory-ui dev & \
+	wait
 
-doctor:
-	@BASEWP_NO_PROMPT=1 bash infra/scripts/wp.sh doctor
-
-clean:
-	@bash infra/scripts/clean.sh
-
-host-add:
-	@bash infra/scripts/host.sh add
-
-host-rm:
-	@bash infra/scripts/host.sh remove
-
-certs:
-	@bash infra/scripts/certs.sh ensure
-
-certs-clean:
-	@bash infra/scripts/certs.sh clean
-
-project:
-	@bash infra/scripts/project.sh
-
-project-list:
-	@bash infra/scripts/project.sh list
-
-project-edit:
-	@bash infra/scripts/project.sh edit
-
-docsh:
-	@echo "👉 Sélectionne du code Bash puis lance Copilot Chat avec /docsh"
-
-docenv:
-	@echo "👉 Sélectionne un .env puis Copilot Chat /docenv"
-
-docmeta:
-	@echo "👉 Sélectionne meta.json puis Copilot Chat /docmeta"
-
-auditshell:
-	@echo "👉 Sélectionne un script Bash puis Copilot Chat /auditshell"
+test-deploy-fixture:
+	@lib/tools/test-deploy-fixture.sh

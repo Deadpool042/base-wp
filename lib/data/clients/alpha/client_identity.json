@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "id": "bb85a638-0f6d-4dc0-9dcf-531e767b4a56",
+  "slug": "alpha",
+  "name": "alpha",
+  "contact": {
+    "email": null,
+    "phone": null
+  },
+  "meta": {
+    "status": "active",
+    "tags": [],
+    "notes": null
+  },
+  "createdAt": "2026-01-06T07:38:34Z",
+  "updatedAt": "2026-01-06T08:00:22Z"
+}

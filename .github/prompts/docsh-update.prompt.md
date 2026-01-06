@@ -1,61 +1,47 @@
 ---
-name: docsh-update
-description: Mettre à jour la documentation Bash existante en français (sans toucher à la logique)
+name: docsh-folder
+description: Documenter en # tous les fichiers .sh d’un dossier (récursif), sans changer la logique
 ---
 
-Analyse le code Bash sélectionné et MET À JOUR la documentation existante si nécessaire.
+MODE: AGENT (multi-fichiers). Très low-token. Pas de blabla.
 
-Règles obligatoires :
+OBJECTIF
+- Ajouter/mettre à jour une documentation en commentaires `#` pour CHAQUE fonction Bash
+- Sur TOUS les fichiers `*.sh` (et `*.bash`, `*.zsh` si présents) dans le dossier suivant (récursif) :
+  <PASTE_FOLDER_PATH_HERE>
 
-- Toute la documentation doit être rédigée en FRANÇAIS.
-- Chaque fonction doit être documentée individuellement à son emplacement c'est à dire avec chaque fonction.
-- Chaque documentation doit suivre le format spécifié ci-dessous.
-- NE JAMAIS utiliser de commentaires JSDoc (`/** */`) en Bash.
-- NE PAS utiliser de commentaires `#` pour la documentation.
-- Utiliser UNIQUEMENT des blocs heredoc Bash inactifs (`: << DOC … DOC`).
-- Ne pas modifier la logique métier du code.
+CONTRAINTES STRICTES
+- Doc en FRANÇAIS.
+- Utiliser UNIQUEMENT des commentaires `#` (pas de heredoc, pas de JSDoc).
+- Ne pas modifier la logique (aucun changement de commandes, variables, conditions).
 - Ne pas renommer les fonctions.
-- Ne pas supprimer de fonctions existantes.
 - Ne pas déplacer les fonctions.
+- Pas de suppression de code.
+- Si une doc existe déjà au bon endroit, la mettre à jour plutôt que la dupliquer.
 
-Comportement attendu :
+FORMAT OBLIGATOIRE (juste au-dessus de chaque fonction)
+# <NomFonction> — <résumé 1 ligne>
+# Args:
+#   $1: ...
+#   $2: ...
+# Returns:
+#   0 si ... ; sinon code != 0
+# Side effects:
+#   - ...
+# Example:
+#   <NomFonction> "arg1" "arg2"
 
-- Si un bloc `: << DOC` existe déjà :
-  - le conserver
-  - le corriger si nécessaire (arguments, effets de bord, résumé)
-  - compléter les sections manquantes
-- Si la documentation est correcte :
-  - NE RIEN MODIFIER
-- Si une fonction n’a PAS de documentation :
-  - ajouter un bloc `: << DOC` juste au-dessus
+RÈGLES D’INSERTION
+- La doc doit être IMMÉDIATEMENT au-dessus de la ligne `nom_fonction() {`
+- Laisser une ligne vide entre la doc et la fonction (optionnel, mais cohérent partout).
+- Si une fonction n’a pas d’arguments : mettre `# Args: none`
+- Si aucun effet de bord : `# Side effects: none`
 
-Format OBLIGATOIRE :
+SCOPE
+- Traiter uniquement les fichiers du dossier donné.
+- Ne pas toucher aux fichiers hors dossier.
+- Documenter TOUTES les fonctions trouvées dans chaque fichier.
 
-: << DOC
-<Nom de la fonction>
-
-Résumé :
-<Résumé clair en une phrase>
-
-Arguments :
-$1: <description>
-$2: <description>
-(indiquer "aucun" si pas d’arguments)
-
-Retour :
-<description ou "aucun">
-
-Effets de bord :
-<liste précise des effets de bord>
-(indiquer "aucun" si applicable)
-
-Exemple :
-<nom_fonction> "arg1" "arg2"
-DOC
-
-Contraintes strictes :
-
-- Le bloc `: << DOC` doit être placé IMMÉDIATEMENT AU-DESSUS de la fonction.
-- Le délimiteur doit être exactement `DOC`.
-- Aucune ligne de documentation ne doit être hors du heredoc.
-- Aucune ligne de code ne doit être ajoutée, supprimée ou modifiée.
+DELIVERABLE
+- Appliquer les modifications sur les fichiers.
+- Résumer en 5 lignes max : nombre de fichiers modifiés + éventuels cas particuliers.
